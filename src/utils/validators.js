@@ -35,8 +35,12 @@ const validateUpdateTask = (body) => {
 
 
 const validateAssignTask = (body) => {
-  if (!body.assignedTo || typeof body.assignedTo !== 'string' || !body.assignedTo.trim()) {
-    return 'assignedTo is required and must be a non-empty string';
+  if (
+    !body.assignee ||
+    typeof body.assignee !== 'string' ||
+    !body.assignee.trim()
+  ) {
+    return 'assignee is required and must be a non-empty string';
   }
 
   return null;

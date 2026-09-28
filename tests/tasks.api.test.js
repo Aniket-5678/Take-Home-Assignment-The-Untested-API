@@ -282,16 +282,16 @@ test('PATCH /tasks/:id/assign should assign a task to a user', async () => {
 
   const response = await request(app)
     .patch(`/tasks/${taskId}/assign`)
-    .send({
-      assignedTo: 'user-123',
-    });
+ .send({
+  assignee: 'user-123',
+});
 
   expect(response.statusCode).toBe(200);
   expect(response.body.id).toBe(taskId);
-  expect(response.body.assignedTo).toBe('user-123');
+ expect(response.body.assignee).toBe('user-123');
 });
 
-test('PATCH /tasks/:id/assign should return 400 when assignedTo is missing', async () => {
+test('PATCH /tasks/:id/assign should return 400 when assignee is missing', async () => {
   const createResponse = await request(app)
     .post('/tasks')
     .send({
@@ -306,12 +306,12 @@ test('PATCH /tasks/:id/assign should return 400 when assignedTo is missing', asy
 
   expect(response.statusCode).toBe(400);
   expect(response.body).toEqual({
-    error: 'assignedTo is required and must be a non-empty string',
+  error: 'assignee is required and must be a non-empty string',
   });
 });
 
 
-test('PATCH /tasks/:id/assign should return 400 for an empty assignedTo', async () => {
+test('PATCH /tasks/:id/assign should return 400 for an empty assignee', async () => {
   const createResponse = await request(app)
     .post('/tasks')
     .send({
@@ -322,26 +322,53 @@ test('PATCH /tasks/:id/assign should return 400 for an empty assignedTo', async 
 
   const response = await request(app)
     .patch(`/tasks/${taskId}/assign`)
-    .send({
-      assignedTo: '   ',
-    });
+ .send({
+  assignee: '   ',
+});
 
   expect(response.statusCode).toBe(400);
   expect(response.body).toEqual({
-    error: 'assignedTo is required and must be a non-empty string',
+  error: 'assignee is required and must be a non-empty string'
   });
 });
 
 test('PATCH /tasks/:id/assign should return 404 for a non-existing task', async () => {
   const response = await request(app)
     .patch('/tasks/does-not-exist/assign')
-    .send({
-      assignedTo: 'user-123',
-    });
+   .send({
+  assignee: 'user-123',
+});
 
   expect(response.statusCode).toBe(404);
   expect(response.body).toEqual({
     error: 'Task not found',
+  });
+});
+
+test('PATCH /tasks/:id/assign should return 400 when task is already assigned', async () => {
+  const createResponse = await request(app)
+    .post('/tasks')
+    .send({
+      title: 'Already Assigned Task',
+    });
+
+  const taskId = createResponse.body.id;
+
+  await request(app)
+    .patch(`/tasks/${taskId}/assign`)
+    .send({
+      assignee: 'user-123',
+    });
+
+  const response = await request(app)
+    .patch(`/tasks/${taskId}/assign`)
+    .send({
+      assignee: 'user-456',
+    });
+
+  expect(response.statusCode).toBe(400);
+  expect(response.body).toEqual({
+    error: 'Task is already assigned',
   });
 });
 });

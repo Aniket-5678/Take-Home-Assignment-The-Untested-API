@@ -17,11 +17,15 @@ router.patch('/:id/assign', (req, res) => {
 
   const task = taskService.assignTask(
     req.params.id,
-    req.body.assignedTo
+    req.body.assignee
   );
 
-  if (!task) {
+  if (task === null) {
     return res.status(404).json({ error: 'Task not found' });
+  }
+
+  if (task === false) {
+    return res.status(400).json({ error: 'Task is already assigned' });
   }
 
   res.json(task);

@@ -1,14 +1,18 @@
 const { v4: uuidv4 } = require('uuid');
 
 let tasks = [];
-const assignTask = (id, assignedTo) => {
+const assignTask = (id, assignee) => {
   const task = findById(id);
 
   if (!task) return null;
 
+  if (task.assignee) {
+    return false;
+  }
+
   const updated = {
     ...task,
-    assignedTo,
+    assignee,
   };
 
   const index = tasks.findIndex((t) => t.id === id);
